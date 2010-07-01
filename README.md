@@ -9,6 +9,8 @@ Torn is a form generator for [Jelly](http://github.com/jonathangeiger/kohana-jel
 
 * Extendable fields
 * Build-in flash uploader
+* Extended Jelly's File_Field to prevent from loosing uploaded file after validation fails
+* Garbage collector
 
 # Examples
 
