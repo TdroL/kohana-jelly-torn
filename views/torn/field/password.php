@@ -1,0 +1,1 @@
+<?php echo Form::password($name, $value, $attributes + array('id' => $config->form_id_prefix.$name)); ?>
