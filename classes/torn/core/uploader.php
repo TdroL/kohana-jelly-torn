@@ -19,6 +19,8 @@ class Torn_Core_Uploader
 	
 	public static function garbage_collector($chance = 5)
 	{
+		static $collected = FALSE;
+		
 		if(function_exists('mt_rand'))
 		{
 			$rand = mt_rand(0, 100);
@@ -28,8 +30,9 @@ class Torn_Core_Uploader
 			$rand = rand(0, 100);
 		}
 		
-		if($chance >= $rand)
+		if(!$collected and $chance >= $rand)
 		{
+			$collected = TRUE;
 			// collect garbage
 			$cache = Cache::instance();
 			$i = 0;
