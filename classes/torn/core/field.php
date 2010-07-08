@@ -42,9 +42,14 @@ abstract class Torn_Core_Field
 		return $this->has_error() ? $this->parent->errors[$this->field->name] : NULL;
 	}
 	
+	public function value()
+	{
+		return $this->model->__get($this->field->name);
+	}
+	
 	public function __toString()
 	{
-		return (string) $this->model->get($this->field->name);
+		return (string) $this->model->__get($this->field->name);
 	}
 	
 	protected function _set_view()
