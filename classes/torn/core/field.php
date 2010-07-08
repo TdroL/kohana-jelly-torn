@@ -44,7 +44,7 @@ abstract class Torn_Core_Field
 	
 	public function __toString()
 	{
-		return $this->model->get($this->field->name);
+		return (string) $this->model->get($this->field->name);
 	}
 	
 	protected function _set_view()
