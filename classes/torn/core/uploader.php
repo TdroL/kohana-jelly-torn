@@ -45,9 +45,8 @@ class Torn_Core_Uploader
 				{
 					$data = $cache->get($name);
 					
-					if(!empty($data) or $data['timestamp'] < time())
+					if(!empty($data) and $data['timestamp'] < time())
 					{
-						Kohana::$log->add('info', time().', '.$data['timestamp']);
 						try
 						{
 							unlink($file->getPathname());
