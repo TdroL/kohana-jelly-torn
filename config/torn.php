@@ -17,7 +17,7 @@ return array(
 	'error_messages_file' => 'validate',
 	
 	// use flash uploader
-	'flash_uploader' => TRUE,
+	'flash_uploader' => FALSE,
 	
 	// default controller for managing flash config and upload
 	'default_controller' => TRUE,

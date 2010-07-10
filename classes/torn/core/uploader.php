@@ -17,10 +17,10 @@ class Torn_Core_Uploader
 		$field->callbacks = array(array($uploader, 'invoke'));
 	}
 	
+	public static $collected = FALSE;
+	
 	public static function garbage_collector($chance = 5)
 	{
-		static $collected = FALSE;
-		
 		if(function_exists('mt_rand'))
 		{
 			$rand = mt_rand(0, 100);
@@ -30,9 +30,9 @@ class Torn_Core_Uploader
 			$rand = rand(0, 100);
 		}
 		
-		if(!$collected and $chance >= $rand)
+		if(!static::$collected and !Request::$is_ajax and $chance >= $rand)
 		{
-			$collected = TRUE;
+			static::$collected = TRUE;
 			// collect garbage
 			$cache = Cache::instance();
 			$i = 0;
@@ -57,9 +57,9 @@ class Torn_Core_Uploader
 						catch (Exception $e) {}
 					}
 				}
-				
-				Kohana::$log->add('info', 'Torn Uploader garbage collector removed :items files', array(':items' => $i));
 			}
+			
+			Kohana::$log->add('info', 'Torn Uploader garbage collector removed :items files', array(':items' => $i));
 		}
 	}
 	
@@ -78,8 +78,10 @@ class Torn_Core_Uploader
 	}
 	
 	public function invoke(Validate $array, $field)
-	{
+	{		
 		$value = $array[$field];
+		
+		echo Kohana::debug('Torn invoked', $value);
 		
 		if(!is_array($value))
 		{
