@@ -34,38 +34,32 @@ class Controller_Core_Torn extends Controller
 			$this->request->response = 'error';
 			return;
 		}
-		
-		$cache = Cache::instance();
-		$surfix = Kohana::config('torn')->form_tmp_file_field_surfix;
-
-		$seed = md5(Request::current()->uri().time());
-		$tmp_name = $seed.'-'.md5_file($value['tmp_name']);
-		
-		if(Upload::save($value, $tmp_name, Kohana::$cache_dir) !== FALSE)
-		{
-			$timestamp = 24*60*60; // 24h
-			$cache->set($tmp_name, array(
-				'upload' => $value,
-				'timestamp' => $timestamp,
-			), $timestamp);
 			
-			$tmp_old_file = Arr::get($_POST, 'old_file');
-			if(!empty($tmp_old_file) and file_exists(Kohana::$cache_dir.DIRECTORY_SEPARATOR.$tmp_old_file))
-			{
-				try
-				{
-					unlink(Kohana::$cache_dir.DIRECTORY_SEPARATOR.$tmp_old_file);
-					$cache->delete($tmp_old_file);
-				}
-				catch (Exception $e) {}
-			}
-			
+		if(($tmp_name = Torn_Uploader::upload_to_cache($value, $field)))
+		{			
 			$this->request->response = 'done;'.$tmp_name;
 		}
 		else
 		{
 			$this->request->response = 'error';
 		}
+	}
+	
+	public function action_cancel()
+	{
+		$file = $this->request->param('hash');
+		
+		if(!empty($file) and file_exists(Kohana::$cache_dir.DIRECTORY_SEPARATOR.$file))
+		{
+			try
+			{
+				unlink(Kohana::$cache_dir.DIRECTORY_SEPARATOR.$file);
+				Cache::instance()->delete($file);
+			}
+			catch (Exception $e) {}
+		}
+		
+		Kohana::$log->add('info', 'canceled :hash', array(':hash' => $file));
 	}
 	
 	public function action_config()
@@ -94,11 +88,11 @@ class Controller_Core_Torn extends Controller
 		
 		$config = array(
 			'url' => Url::base(TRUE, TRUE).Route::get('torn/upload')->uri(),
+			'cancel' => Url::base(TRUE, TRUE).Route::get('torn/cancel')->uri(array('hash' => '--hash--')),
 			'swf' => Url::site('torn/media/TUploader.swf'),
 			'max_size' => $max_size,
 			'filters' => array(
-				__('Images') => '*.png;*.jpg;*.gif',
-				__('Video') => '*.mkv;*.avi;*.ogg',
+				__('All files') => '*.*',
 			),
 			'messages' => array(
 				'file_is_too_big' => __('File is too big'),

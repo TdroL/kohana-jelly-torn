@@ -12,29 +12,48 @@ function TUploadJsReceiver(instance, status, file, hashed, current, total) {
 	
 	if(typeof $el != "undefined")
 	{
-		if(status == 'uploading')
+		switch(status)
 		{
-			if(file == 'null' || file == '')
+			case 'uploading':
 			{
-				$el.find('.uploader-progress').text('');
+				if(file == 'null' || !file.length)
+				{
+					$el.find('.uploader-progress').text('');
+				}
+				else
+				{
+					$el.find('.uploader-progress').text(file+' '+(Math.round(current/(1024*10.24))/100)+'MiB / '+(Math.round(total/(1024*10.24))/100)+'MiB');
+					$el.find('.uploader-cancellink').css('display', $el.find('.uploader-cancellink').data('display'));
+				}
+				break;
 			}
-			else
+			
+			case 'done':
 			{
 				$el.find('.uploader-progress').text(file+' '+(Math.round(current/(1024*10.24))/100)+'MiB / '+(Math.round(total/(1024*10.24))/100)+'MiB');
+				$el.find('.uploader-progress').append(' '+TUploader_messages.done);
+				$el.find('.uploader-rememberd').hide();
+				$el.find('input.uploader-tmp').val(hashed);
+				break;
 			}
-		}
-		
-		if(status == 'done')
-		{
-			$el.find('.uploader-progress').text(file+' '+(Math.round(current/(1024*10.24))/100)+'MiB / '+(Math.round(total/(1024*10.24))/100)+'MiB');
-			$el.find('.uploader-progress').append(' '+TUploader_messages.done);
-			$el.find('input.uploader-tmp').val(hashed);
-			$el.find('.uploader-cancellink').css('display', $el.find('.uploader-cancellink').data('display'));
-		}
-		
-		if(status == 'error')
-		{
-			$el.find('.uploader-progress').append(' '+TUploader_messages.error);
+			
+			case 'error':
+			{
+				$el.find('.uploader-progress').append(' '+TUploader_messages.error);
+				$el.find('.uploader-cancellink').hide();
+				break;
+			}
+			
+			case 'canceled':
+			{
+				$el.find('.uploader-progress').text('Anulowano');
+				
+				if(!$el.find('input.uploader-tmp').val().length)
+				{
+					$el.find('.uploader-cancellink').hide();
+				}
+				break;
+			}
 		}
 	}
 }
@@ -72,21 +91,26 @@ jQuery.fn.TUploader = function(config)
 		$fakelink
 			.text(json.messages.select_file)
 			.click(function(){ return false; });
+			
 		$cancellink
 			.text(json.messages.cancel)
 			.data('display', $cancellink.css('display'))
-			.hide()
 			.click(function(){
 				if(confirm(json.messages.confirm))
 				{
 					$el.find('input.uploader-tmp').val('');
 					$el.find('.uploader-progress').text('');
-					$el.find('.uploader-embed embed').externalInterface('cancel');
+					$el.find('.uploader-embed embed').get(0).cancel();
 					$cancellink.hide();
 				}
 				return false;
 			});
 		
+		if (!$el.find('input.uploader-tmp').val().length)
+		{
+			$cancellink.hide();
+		}
+			
 		$container.find('.uploader-embed').flash({
 			src: json.swf,
 			width: $fakelink.outerWidth(),

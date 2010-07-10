@@ -15,15 +15,16 @@
 	public class TUploader extends MovieClip
 	{
 		
-		var file:FileReference;
+		var file:FileReference = new FileReference();
 		var filefilters:Array;
 		var req:URLRequest = new URLRequest();
 		var ready:Boolean = false;
 
 		var settings:Object = {
 				url: 'uploader.php',
+				cancel: 'uploader.php?hash=--hash--',
 				filters: {
-						'Images': '*.jpg;*.png;*.gif'
+						'All files': '*.*'
 				},
 				max_size: -1, // unlimited
 				debug: true,
@@ -47,7 +48,8 @@
 		public function TUploader()
 		{
 			ExternalInterface.addCallback('cancel', function(){
-				this.cancel();
+				file.dispatchEvent(new Event(Event.CANCEL));
+				file.cancel();
 			});
 			
 			if(getFlashVars().config)
@@ -112,23 +114,21 @@
 			{
 				output.instance = getFlashVars().instance;
 			}
-
-			file = new FileReference();
 			
-			file.addEventListener(Event.CANCEL, cancel_func);
-			file.addEventListener(Event.COMPLETE, complete_func);
-			file.addEventListener(IOErrorEvent.IO_ERROR, io_error);
-			file.addEventListener(Event.OPEN, open_func);
-			file.addEventListener(ProgressEvent.PROGRESS, progress_func);
-			file.addEventListener(Event.SELECT, select_handler);
-			file.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, show_message);		
-			select_btn.addEventListener(MouseEvent.CLICK, browse);
+			file.addEventListener(Event.CANCEL, cancelHandler);
+			file.addEventListener(Event.COMPLETE, completeHandler);
+			file.addEventListener(IOErrorEvent.IO_ERROR, io_errorHandler);
+			file.addEventListener(Event.OPEN, openHandler);
+			file.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+			file.addEventListener(Event.SELECT, selectHandler);
+			file.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, show_messageHandler);		
+			select_btn.addEventListener(MouseEvent.CLICK, browseHandler);
 			
 			output.status = 'ready';
 			notify_js();
 		}
 		
-		public function browse(e:MouseEvent)
+		public function browseHandler(e:MouseEvent)
 		{
 			if(output.status == 'uploading')
 			{
@@ -138,8 +138,23 @@
 			file.browse(filefilters);
 		}
 		
-		private function cancel_func(e:Event)
+		private function cancelHandler(e:Event)
 		{
+			var loader:URLLoader = new URLLoader();
+			var request:URLRequest = new URLRequest();
+				
+			request.url = settings.cancel.replace(/--hash--/ig, (output.hashed != null && output.hashed.length) ? output.hashed : "");
+			try
+			{
+				loader.load(request);
+			}
+			catch (error:Error)
+			{
+                trace("Unable to load requested document.");
+            }
+
+			
+			
 			output.status = 'canceled';
 			output.file = null;
 			output.hashed = null;
@@ -148,26 +163,26 @@
 			notify_js();
 		}
 		
-		private function complete_func(e:Event)
+		private function completeHandler(e:Event)
 		{
 			output.status = 'complete';
 			output.current = output.total;
 			notify_js();
 		}
 		
-		private function io_error(e:IOErrorEvent)
+		private function io_errorHandler(e:IOErrorEvent)
 		{
 			output.status = 'io_error';
 			alert(settings.messages.io_error);
 			notify_js();
 		}
 		
-		private function open_func(e:Event)
+		private function openHandler(e:Event)
 		{
 			
 		}
 		
-		private function progress_func(e:ProgressEvent)
+		private function progressHandler(e:ProgressEvent)
 		{
 			output.current = e.bytesLoaded;
 			output.total = e.bytesTotal;
@@ -175,7 +190,7 @@
 			notify_js();
 		}
 		
-		private function select_handler(e:Event)
+		private function selectHandler(e:Event)
 		{
 			if(settings.max_size > 0 && file.size > settings.max_size)
 			{
@@ -193,7 +208,7 @@
 			notify_js();
 		}
 		
-		private function show_message(e:DataEvent)
+		private function show_messageHandler(e:DataEvent)
 		{
 			output.status = e.data; // e.data - from PHP
 			

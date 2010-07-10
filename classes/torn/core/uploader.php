@@ -44,10 +44,10 @@ class Torn_Core_Uploader
 				if($file->isFile() and preg_match('/^[a-z0-9]{32}-[a-z0-9]{32}$/iD', $name))
 				{
 					$data = $cache->get($name);
-					$time = $file->getMTime();
 					
-					if(!empty($data) or ($time + $data['timestamp']) < time())
+					if(!empty($data) or $data['timestamp'] < time())
 					{
+						Kohana::$log->add('info', time().', '.$data['timestamp']);
 						try
 						{
 							unlink($file->getPathname());
@@ -81,18 +81,41 @@ class Torn_Core_Uploader
 	{		
 		$value = $array[$field];
 		
-		echo Kohana::debug('Torn invoked', $value);
-		
 		if(!is_array($value))
 		{
 			return TRUE;
 		}
 		
+		$cache = Cache::instance();
+		$surfix = Kohana::config('torn')->form_tmp_file_field_surfix;
+		
+		$cached = $this->model->get($field.$surfix);
+		$used_cached = FALSE;
+		$empty_check = FALSE;
+		
+		if(!Upload::not_empty($value) and preg_match('/^[a-z0-9]{32}-[a-z0-9]{32}$/iD', $cached))
+		{
+			$value = Arr::get($cache->get($cached), 'upload', $value);
+			$used_cached = TRUE;
+		}
+		
+		$modified_rules = $this->rules;
+		
+		foreach($this->rules as $rule => $params)
+		{
+			if(!utf8::strcasecmp($rule, 'Upload::not_empty'))
+			{
+				unset($modified_rules[$rule]);
+				$modified_rules['Torn_Uploader::not_empty'] = NULL;
+				break;
+			}
+		}
+		
 		$validate = Validate::factory(array($field => $value))
 							->filters($field, $this->filters)
-							->rules($field, $this->rules)
+							->rules($field, $modified_rules)
 							->callbacks($field, $this->callbacks);
-						
+		
 		if(!$validate->check())
 		{
 			foreach($validate->errors() as $v)
@@ -107,23 +130,39 @@ class Torn_Core_Uploader
 		$validate = $array->as_array();
 		$value = $validate[$field];
 		
-		$cache = Cache::instance();
-		$surfix = Kohana::config('torn')->form_tmp_file_field_surfix;
-		
-		if(Upload::not_empty($value)) // Upload::valid passed in Validate above
+		if(($tmp_name = static::upload_to_cache($value, $field)) and !$used_cached) // Upload::valid passed in Validate above
 		{
-			$seed = Arr::get($_POST, '__SEED__', md5(Request::current()->uri().time()));
-			$tmp_name = $seed.'-'.md5_file($value['tmp_name']);
+			$array[$field] = $tmp_name;
+		}
+		else
+		{
+			$array[$field] = Arr::get($_POST, $field.$surfix, $value);
+		}
+		
+		$this->model->set($field, $array[$field]);
+		return TRUE;
+	}
+	
+	public static function upload_to_cache(array $file, $field)
+	{
+		if(Upload::not_empty($file)) // Upload::valid passed in Validate above
+		{
+			$cache = Cache::instance();
+			$surfix = Kohana::config('torn')->form_tmp_file_field_surfix;
 			
-			if(Upload::save($value, $tmp_name, Kohana::$cache_dir) !== FALSE)
+			$seed = Arr::get($_POST, '__SEED__', md5(Request::current()->uri().time()));
+			$tmp_name = $seed.'-'.md5_file($file['tmp_name']);
+			
+			if(Upload::save($file, $tmp_name, Kohana::$cache_dir) !== FALSE)
 			{
-				$timestamp = 24*60*60; // 24h
+				$timestamp = time() + 24*60*60; // 24h
+				$file['tmp_name'] = $tmp_name;
 				$cache->set($tmp_name, array(
-					'upload' => $value,
+					'upload' => $file,
 					'timestamp' => $timestamp,
 				), $timestamp);
 				
-				$tmp_old_file = Arr::get($_POST, $field.$surfix);
+				$tmp_old_file = Arr::get($_POST, $field.$surfix, Arr::get($_POST, 'old_file')); // old_file - Flash uploader
 				if(!empty($tmp_old_file) and file_exists(Kohana::$cache_dir.DIRECTORY_SEPARATOR.$tmp_old_file))
 				{
 					try
@@ -134,15 +173,20 @@ class Torn_Core_Uploader
 					catch (Exception $e) {}
 				}
 				
-				$array[$field] = $tmp_name;
+				return $tmp_name;
 			}
 		}
-		else
-		{
-			$array[$field] = Arr::get($_POST, $field.$surfix, $value);
-		}
 		
-		$this->model->set($field, $array[$field]);
-		return TRUE;
+		return FALSE;
+	}
+	
+	public static function not_empty(array $file)
+	{
+		return isset($file['error'])
+			   AND isset($file['tmp_name'])
+			   AND $file['error'] === UPLOAD_ERR_OK
+			   AND (is_uploaded_file($file['tmp_name'])
+			     OR file_exists(Kohana::$cache_dir.DIRECTORY_SEPARATOR.$file['tmp_name'])
+			   );
 	}
 }

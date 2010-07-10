@@ -34,6 +34,16 @@ class Field_File extends Jelly_Field_File
 					$name = call_user_func($this->torn_filename_callback, $name);
 				}
 				
+				$i = 1;
+				$orgiginal = $name;
+				while(file_exists($this->path.$name))
+				{
+					$info = pathinfo($orgiginal);
+					
+					$name = $info['filename'].'-'.$i.'.'.$info['extension'];
+					$i++;
+				}
+				
 				rename(Kohana::$cache_dir.DIRECTORY_SEPARATOR.$value, $this->path.$name);
 				$cache->delete($value);
 				
