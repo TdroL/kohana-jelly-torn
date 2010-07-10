@@ -9,7 +9,7 @@ class Torn_Field_Core_File extends Torn_Field
 		
 		$cached = NULL;
 		
-		if(!is_string($tmp))
+		if(!is_string($tmp) or !preg_match('/^[a-z0-9]{32}-[a-z0-9]{32}$/iD', $tmp))
 		{
 			$tmp = NULL;
 			$cached = NULL;
