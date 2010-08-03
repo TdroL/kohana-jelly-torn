@@ -3,7 +3,7 @@
 class Torn_Core_Helper
 {
 	protected $parent;
-
+	protected $remember_seed = TRUE;
 	
 	public static function factory(Torn $parent)
 	{
@@ -37,6 +37,12 @@ class Torn_Core_Helper
 	public function open($url = NULL, array $attr = array())
 	{
 		$seed = md5(Request::current()->uri().time());
+
+		if($this->remember_seed)
+		{
+			Session::instance()->set($seed, FALSE);
+		}
+		
 		return Form::open($url, $attr).Form::hidden('__SEED__', $seed);
 	}
 	
