@@ -22,4 +22,7 @@ return array(
 	// default controller for managing flash config and upload
 	'default_controller' => TRUE,
 	'default_controller_lang' => 'pl-pl',
+
+	// CSRF protection
+	'token_expiration' => '+60 minutes',
 );

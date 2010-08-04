@@ -35,14 +35,25 @@ class Torn_Core_Helper
 
 	public function check()
 	{
-		return $_POST and ($seed = Arr::get($_POST, '__SEED__')) and Session::instance()->get($seed);
+		return $_POST and ($seed = Arr::get($_POST, '__SEED__')) and Session::instance()->get($seed, 0) > time();
 	}
 	
 	public function open($url = NULL, array $attr = array())
 	{
-		$seed = md5(Request::current()->uri().time());
+		$expiration = Kohana::config('torn.token_expiration');
 
-		Session::instance()->set($seed, TRUE);
+		$seed = md5(md5(Request::current()->uri().time()).Text::random('alnum', 32));
+
+		if(is_string($expiration))
+		{
+			$expiration = strtotime($expiration);
+		}
+		else
+		{
+			$expiration = time() + (int) $expiration;
+		}
+
+		Session::instance()->set($seed, $expiration);
 		
 		return Form::open($url, $attr).Form::hidden('__SEED__', $seed);
 	}
