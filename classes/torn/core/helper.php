@@ -3,7 +3,6 @@
 class Torn_Core_Helper
 {
 	protected $parent;
-	protected $remember_seed = TRUE;
 	
 	public static function factory(Torn $parent)
 	{
@@ -33,15 +32,17 @@ class Torn_Core_Helper
 		}
 		return NULL;
 	}
+
+	public function check()
+	{
+		return $_POST and ($seed = Arr::get($_POST, '__SEED__')) and Session::instance()->get($seed);
+	}
 	
 	public function open($url = NULL, array $attr = array())
 	{
 		$seed = md5(Request::current()->uri().time());
 
-		if($this->remember_seed)
-		{
-			Session::instance()->set($seed, FALSE);
-		}
+		Session::instance()->set($seed, TRUE);
 		
 		return Form::open($url, $attr).Form::hidden('__SEED__', $seed);
 	}

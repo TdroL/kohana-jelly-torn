@@ -20,4 +20,25 @@ class Jelly_Model extends Jelly_Model_Core
 		
 		return parent::validate($data);
 	}
+
+	public function save($key = NULL)
+	{
+		parent::save($key);
+
+		$seed = Arr::get($_POST, '__SEED__') and Session::instance()->delete($seed);
+
+		return $this;
+	}
+
+	public function delete($key = NULL)
+	{
+		if(parent::delete($key))
+		{
+			$seed = Arr::get($_POST, '__SEED__') and Session::instance()->delete($seed);
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
 }
