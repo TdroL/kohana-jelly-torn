@@ -1,6 +1,6 @@
 <div id="<?php echo $name ?>--container">
-	<?php echo Form::file($name, $attributes + array('id' => $config->form_id_prefix.$name)); ?>
-	<?php echo Form::hidden($name.$config->form_tmp_file_field_surfix, $tmp, array('class' => 'uploader-tmp')) ?>
+	<?php echo Form::file($name, $attributes + array('id' => $config->prefix.$name)); ?>
+	<?php echo Form::hidden($name.$config->surfix, $tmp, array('class' => 'uploader-tmp')) ?>
 	<?php if(!empty($cached)): ?>
 	<div class="uploader-rememberd"><?php echo __('Uploaded file:') ?> <?php echo $cached ?></div>
 	<?php endif ?>

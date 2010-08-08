@@ -1,1 +1,1 @@
-<?php echo Form::input($name, date($pretty_format, $value), $attributes + array('id' => $config->form_id_prefix.$name)); ?>
+<?php echo Form::input($name, date($pretty_format, $value), $attributes + array('id' => $config->prefix.$name)); ?>

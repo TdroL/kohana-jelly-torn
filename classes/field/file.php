@@ -52,12 +52,12 @@ class Field_File extends Jelly_Field_File
 			}
 		}
 		
-		$tmp_field = $this->name.$config->form_tmp_file_field_surfix;
+		$tmp_field = $this->name.$config->surfix;
 		
 		if(is_string($value) and array_key_exists($tmp_field, $_POST)
 		   and empty($value) and empty($_POST[$tmp_field]))
 		{
-			return $model->original($this->name); // don't save
+			return $model->get($this->name, FALSE); // don't save
 		}
 		
 		return parent::save($model, $value, $loaded);

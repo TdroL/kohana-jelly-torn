@@ -2,19 +2,19 @@
 
 return array(
 	// if unknown field type, use default
-	'default_type_field' => 'text',
+	'default_type' => 'text',
 	
-	// Field classes prefix
-	'torn_field_prefix' => 'Torn_Field_',
+	// Field class prefix
+	'field_prefix' => 'Torn_Field_',
 	
 	// html ids prefix
-	'form_id_prefix' => 'field-',
+	'prefix' => 'field-',
 	
 	// hidden cached file field
-	'form_tmp_file_field_surfix' => '-tmp',
+	'surfix' => '-tmp',
 	
 	// validation messages
-	'error_messages_file' => 'validate',
+	'messages' => 'validate',
 	
 	// use flash uploader
 	'flash_uploader' => TRUE,

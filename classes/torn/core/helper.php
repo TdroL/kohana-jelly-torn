@@ -70,7 +70,7 @@ class Torn_Core_Helper
 			return;
 		}
 		
-		$surfix = Kohana::config('torn')->form_tmp_file_field_surfix;
+		$surfix = Kohana::config('torn')->surfix;
 		$surfix_len = utf8::strlen($surfix);
 		
 		foreach($_POST as $key => $tmp_name)
@@ -78,7 +78,7 @@ class Torn_Core_Helper
 			if(utf8::substr($key, -$surfix_len) == $surfix)
 			{
 				$field = utf8::substr($key, 0, -$surfix_len);
-				$this->parent->model()->set($field, $tmp_name);
+				$this->parent->model->set($field, $tmp_name);
 			}
 		}
 		
@@ -86,7 +86,7 @@ class Torn_Core_Helper
 		
 		foreach($_FILES as $key => $upload)
 		{
-			$this->parent->model()->set($key, $upload);
+			$this->parent->model->set($key, $upload);
 			
 			if(!isset($this->parent->fields[$key]) or !($this->parent->fields[$key] instanceof Torn_Field_File))
 			{
@@ -117,7 +117,7 @@ class Torn_Core_Helper
 						catch (Exception $e) {}
 					}
 					
-					$this->parent->model()->set($key, $tmp_name);
+					$this->parent->model->set($key, $tmp_name);
 				}
 			}
 		}

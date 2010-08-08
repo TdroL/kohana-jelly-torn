@@ -86,11 +86,19 @@ class Torn_Core_Uploader
 		}
 		
 		$cache = Cache::instance();
-		$surfix = Kohana::config('torn')->form_tmp_file_field_surfix;
+		$surfix = Kohana::config('torn')->surfix;
 		
 		$cached = $this->model->get($field.$surfix);
+		$current = $this->model->get($field, FALSE);
 		$used_cached = FALSE;
 		$empty_check = FALSE;
+
+		if(!Upload::not_empty($value) and empty($cached) and !empty($current))
+		{
+			$this->model->set($field, $current);
+			$array[$field] = $current;
+			return TRUE;
+		}
 		
 		if(!Upload::not_empty($value) and preg_match('/^[a-z0-9]{32}-[a-z0-9]{32}$/iD', $cached))
 		{
@@ -147,7 +155,7 @@ class Torn_Core_Uploader
 		if(Upload::not_empty($file)) // Upload::valid passed in Validate above
 		{
 			$cache = Cache::instance();
-			$surfix = Kohana::config('torn')->form_tmp_file_field_surfix;
+			$surfix = Kohana::config('torn')->surfix;
 			
 			$seed = Arr::get($_POST, '__SEED__', md5(Request::current()->uri().time()));
 			$tmp_name = $seed.'-'.md5_file($file['tmp_name']);

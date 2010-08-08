@@ -1,1 +1,1 @@
-<?php echo Form::select($name, $choices, $value, $attributes + array('id' => $config->form_id_prefix.$name)); ?>
+<?php echo Form::select($name, $choices, $value, $attributes + array('id' => $config->prefix.$name)); ?>

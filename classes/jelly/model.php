@@ -2,12 +2,6 @@
 
 class Jelly_Model extends Jelly_Model_Core
 {
-	
-	public function original($key)
-	{
-		return Arr::get($this->_original, $key);
-	}
-	
 	public function validate($data = NULL)
 	{
 		foreach ($this->_meta->fields() as $column => $field)
@@ -20,13 +14,13 @@ class Jelly_Model extends Jelly_Model_Core
 		
 		return parent::validate($data);
 	}
-
+	
 	public function save($key = NULL)
 	{
 		parent::save($key);
-
+		
 		$seed = Arr::get($_POST, '__SEED__') and Session::instance()->delete($seed);
-
+		
 		return $this;
 	}
 
@@ -35,10 +29,10 @@ class Jelly_Model extends Jelly_Model_Core
 		if(parent::delete($key))
 		{
 			$seed = Arr::get($_POST, '__SEED__') and Session::instance()->delete($seed);
-
+			
 			return TRUE;
 		}
-
+		
 		return FALSE;
 	}
 }

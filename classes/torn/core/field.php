@@ -23,7 +23,7 @@ abstract class Torn_Core_Field
 	{
 		$label = ($transalte) ? __($this->field->label) : $this->field->label;
 		
-		return Form::label(Kohana::config('torn')->form_id_prefix.$this->field->name, $label);
+		return Form::label(Kohana::config('torn')->prefix.$this->field->name, $label);
 	}
 	
 	public function input()

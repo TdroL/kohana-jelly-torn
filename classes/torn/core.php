@@ -9,7 +9,7 @@
 
 abstract class Torn_Core
 {
-	protected $model;
+	public $model;
 	public $errors = array();
 	public $fields = array();
 	
@@ -29,7 +29,7 @@ abstract class Torn_Core
 				throw new Torn_Field_Exception('Unsupported field type ":field"', array(':field' => get_class($jelly_field)));
 			}
 			
-			$field_name = Kohana::config('Torn')->torn_field_prefix.ucfirst($matches['name']);
+			$field_name = Kohana::config('Torn')->field_prefix.ucfirst($matches['name']);
 			
 			$class = new ReflectionClass($field_name);
 			
@@ -41,15 +41,10 @@ abstract class Torn_Core
 			$this->fields[$name] = $class->newInstance($jelly_field, $model, $this);
 		}
 	}
-	
-	public function model()
-	{
-		return $this->model;
-	}
 
 	public function catch_errors(Validate_Exception $e)
 	{
-		$this->errors = $e->array->errors(Kohana::config('torn')->error_messages_file);
+		$this->errors = $e->array->errors(Kohana::config('torn')->messages);
 	}
 
 	public function has_errors()
