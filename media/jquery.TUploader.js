@@ -12,16 +12,21 @@ function TUploadJsReceiver(instance, status, file, hashed, current, total) {
 	
 	if(typeof $el != "undefined")
 	{
+		var $form = $el.closest('form');
+		var data = $form.data('torn-locked');
+		
 		switch(status)
 		{
 			case 'uploading':
 			{
 				if(file == 'null' || !file.length)
 				{
+					$form.TUnlock($form, instance);
 					$el.find('.uploader-progress').text('');
 				}
 				else
 				{
+					$form.TLock($form, instance);
 					$el.find('.uploader-progress').text(file+' '+(Math.round(current/(1024*10.24))/100)+'MiB / '+(Math.round(total/(1024*10.24))/100)+'MiB');
 					$el.find('.uploader-cancellink').css('display', $el.find('.uploader-cancellink').data('display'));
 				}
@@ -30,15 +35,24 @@ function TUploadJsReceiver(instance, status, file, hashed, current, total) {
 			
 			case 'done':
 			{
+				$form.TUnlock($form, instance);
+				
 				$el.find('.uploader-progress').text(file+' '+(Math.round(current/(1024*10.24))/100)+'MiB / '+(Math.round(total/(1024*10.24))/100)+'MiB');
 				$el.find('.uploader-progress').append(' '+TUploader_messages.done);
 				$el.find('.uploader-rememberd').hide();
 				$el.find('input.uploader-tmp').val(hashed);
+				
+				if(!$form.TLocked($form))
+				{
+					$form.submit();
+				}
+				
 				break;
 			}
 			
 			case 'error':
 			{
+				$form.TUnlock($form, instance);
 				$el.find('.uploader-progress').append(' '+TUploader_messages.error);
 				$el.find('.uploader-cancellink').hide();
 				break;
@@ -46,6 +60,7 @@ function TUploadJsReceiver(instance, status, file, hashed, current, total) {
 			
 			case 'canceled':
 			{
+				$form.TUnlock($form, instance);
 				$el.find('.uploader-progress').text('Anulowano');
 				
 				if(!$el.find('input.uploader-tmp').val().length)
@@ -58,11 +73,62 @@ function TUploadJsReceiver(instance, status, file, hashed, current, total) {
 	}
 }
 
+jQuery.fn.TLock = function(form, index)
+{
+	var data = form.data('torn-locked');
+	
+	if(!$.isArray(data)) data = [];
+	
+	data[index] = 1;
+	
+	form.data('torn-locked', data);
+};
+
+jQuery.fn.TUnlock = function(form, index)
+{
+	var data = form.data('torn-locked');
+
+	if(!$.isArray(data)) data = [];
+	
+	data[index] = 0;
+	
+	form.data('torn-locked', data);
+};
+
+jQuery.fn.TLocked = function(form)
+{
+	var data = form.data('torn-locked');
+	
+	if(!$.isArray(data)) data = [];
+	
+	var sum = 0;
+		
+	data.foreach(function(v){
+		sum += v;
+	});
+	
+	return sum > 0;
+};
 
 jQuery.fn.TUploader = function(config)
 {
 	var $el = $(this);
 	var $form = $el.closest('form');
+
+	$form.submit(function(){
+		var data = $form.data('torn-locked');
+		var sum = 0;
+		
+		data.foreach(function(v){
+			sum += v;
+		});
+		
+		if(sum > 0)
+		{
+			$form.data('torn-trigger', true);
+			return false;
+		}
+	});
 
 	if(!$.browser.flash)
 	{
@@ -71,7 +137,7 @@ jQuery.fn.TUploader = function(config)
 	
 	$.getJSON(config, function(json){
 	
-		var instance = 'TUploader_'+TUploader_instances_counter.length;
+		var instance = 'TUploader_'+TUploader_instances_counter;
 		TUploader_instances_counter++;
 		TUploader_instances[instance] = $el;
 		TUploader_messages = json.messages;

@@ -12,7 +12,7 @@
 	<?php if($config->flash_uploader): ?>
 	<?php echo html::script('torn/media/jquery-1.4.2.min.js+jquery.plugin.1.0.3.js+jquery.flash.js+jquery.TUploader.js') ?>
 	<script>
-		$('#<?php echo $name ?>--container').TUploader("<?php echo url::site('torn/config') ?>");
+		$('#<?php echo $name ?>--container').TUploader('<?php echo url::site('torn/config') ?>');
 	</script>
 	<?php endif ?>
 </div>
