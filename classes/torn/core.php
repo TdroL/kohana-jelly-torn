@@ -29,7 +29,7 @@ abstract class Torn_Core
 				throw new Torn_Field_Exception('Unsupported field type ":field"', array(':field' => get_class($jelly_field)));
 			}
 			
-			$field_name = Kohana::config('Torn')->field_prefix.ucfirst($matches['name']);
+			$field_name = Kohana::config('torn')->field_prefix.ucfirst($matches['name']);
 			
 			$class = new ReflectionClass($field_name);
 			
