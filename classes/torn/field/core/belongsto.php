@@ -7,9 +7,9 @@ class Torn_Field_Core_BelongsTo extends Torn_Field
 	{
 		$options = Jelly::select($this->field->foreign['model'])->execute()->as_array(':primary_key', ':name_key');
 		
-		if($this->field->null)
+		if($this->field->null AND ! array_key_exists('not_empty', $this->field->rules))
 		{
-			$options = array_merge(array(0 => __('None')), $options);
+			$options = array_merge(array('' => __('None')), $options);
 		}
 		
 		$this->view->set(array(
