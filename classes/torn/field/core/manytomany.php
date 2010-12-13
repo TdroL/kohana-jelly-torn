@@ -2,12 +2,21 @@
 
 class Torn_Field_Core_ManyToMany extends Torn_Field
 {
-
 	public function input(array $attributes = array())
 	{
+		$value = $this->model->__get($this->field->name);
+		
+		$ids = array();
+
+		foreach ($value as $model)
+		{
+			$ids[] = $model->id();
+		}
+		
 		$this->view->set(array(
 			'name' => $this->field->name,
-			'value' => $this->model->__get($this->field->name),
+			'ids' => $ids,
+			'foreign' => $this->field->foreign,
 			'attributes' => $attributes,
 		));
 		
