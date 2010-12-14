@@ -30,9 +30,9 @@ class Torn_Core_Uploader
 			$rand = rand(0, 100);
 		}
 		
-		if(!static::$collected and !Request::$is_ajax and $chance >= $rand)
+		if(!Torn_Uploader::$collected and !Request::$is_ajax and $chance >= $rand)
 		{
-			static::$collected = TRUE;
+			Torn_Uploader::$collected = TRUE;
 			// collect garbage
 			$cache = Cache::instance();
 			$i = 0;
@@ -137,7 +137,7 @@ class Torn_Core_Uploader
 		$validate = $array->as_array();
 		$value = $validate[$field];
 		
-		if(($tmp_name = static::upload_to_cache($value, $field)) and !$used_cached) // Upload::valid passed in Validate above
+		if(($tmp_name = Torn_Uploader::upload_to_cache($value, $field)) and !$used_cached) // Upload::valid passed in Validate above
 		{
 			$array[$field] = $tmp_name;
 		}
