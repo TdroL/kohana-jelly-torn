@@ -129,6 +129,14 @@ class Controller_Core_Torn extends Controller
 			
 			$this->request->headers['Content-Type'] = File::mime_by_ext('js');
 			
+			$file = preg_replace('/^(.+?)\.js$/iD', '$1', $media);
+			
+			if($file = Kohana::find_file('media', $file, 'js'))
+			{
+				$this->request->response = file_get_contents($file);
+			}
+			
+			/*
 			foreach(explode('+', $media) as $file)
 			{
 				$file = preg_replace('/^(.+?)\.js$/iD', '$1', $file);
@@ -138,6 +146,7 @@ class Controller_Core_Torn extends Controller
 					$this->request->response .= file_get_contents($file).PHP_EOL;
 				}
 			}
+			*/
 		}
 	}
 }

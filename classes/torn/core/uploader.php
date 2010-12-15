@@ -77,7 +77,7 @@ class Torn_Core_Uploader
 	}
 	
 	public function invoke(Validate $array, $field)
-	{		
+	{
 		$value = $array[$field];
 		
 		if(!is_array($value))
@@ -92,7 +92,7 @@ class Torn_Core_Uploader
 		$current = $this->model->get($field, FALSE);
 		$used_cached = FALSE;
 		$empty_check = FALSE;
-
+		
 		if(!Upload::not_empty($value) and empty($cached) and !empty($current))
 		{
 			$this->model->set($field, $current);
