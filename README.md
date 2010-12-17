@@ -37,7 +37,7 @@ Example - action (with file upload):
 		{
 			try
 			{
-				$post->set($_FILES + $_POST);
+				$post->set($_FILES + $_POST); // remove "$_FILES +" if you won't upload files
 				$post->save();
 			}
 			catch (Validate_Exception $e)
@@ -49,7 +49,7 @@ Example - action (with file upload):
 
 Example - view:
 
-	<?php echo $form->open(NULL, Form::$allow_upload) ?>
+	<?php echo $form->open(NULL, Torn::$allow_upload) ?>
 	
 	<?php if($form->has_errors()): ?>
 	<div class="errors">
@@ -76,6 +76,11 @@ Example - view:
 		<dt><?php echo $form->file->label() ?></dt>
 		<dd>
 			<?php echo $form->file->input() ?>
+		</dd>
+		
+		<dt><?php echo $form->authors->label() ?></dt>
+		<dd>
+			<?php echo $form->authors->set_filename('custom_field_view')->input() ?>
 		</dd>
 		
 		<dd><input type="submit" value="Update" /></dd>

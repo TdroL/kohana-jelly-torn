@@ -13,6 +13,8 @@ abstract class Torn_Core
 	public $errors = array();
 	public $fields = array();
 	
+	public static $allow_upload = array('enctype' => 'multipart/form-data');
+	
 	public static function factory(Jelly_Model $model)
 	{
 		return new Torn($model);
