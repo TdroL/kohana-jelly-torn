@@ -7,7 +7,7 @@ abstract class Torn_Core_Field
 	protected $parent;
 	
 	protected $view;
-	protected $filename;
+	public $filename;
 	
 	public function __construct(Jelly_Field $field, Jelly_Model $model, Torn $parent)
 	{
@@ -16,7 +16,7 @@ abstract class Torn_Core_Field
 		$this->parent = $parent;
 		
 		$this->view = new View();
-		$this->filename = $this->_get_filename();
+		$this->filename = 'torn/field/'.$this->_get_filename();
 	}
 	
 	public function label($transalte = TRUE)
@@ -29,7 +29,7 @@ abstract class Torn_Core_Field
 	public function input()
 	{
 		$this->view->set('config', Kohana::config('torn'));
-		$this->view->set_filename('torn/field/'.$this->filename);
+		$this->view->set_filename($this->filename);
 		
 		return $this->view;
 	}
@@ -52,6 +52,17 @@ abstract class Torn_Core_Field
 	public function __toString()
 	{
 		return (string) $this->model->__get($this->field->name);
+	}
+	
+	public function set_filename($filename, $torn_dir = FALSE)
+	{
+		$this->filename = $filename;
+		if($torn_dir !== FALSE)
+		{
+			$this->filename = 'torn/field/'.$filename;
+		}
+		
+		return $this;
 	}
 	
 	protected function _get_filename()
