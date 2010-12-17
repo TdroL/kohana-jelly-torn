@@ -70,7 +70,7 @@ class Torn_Core_Helper
 			return;
 		}
 		
-		$surfix = Kohana::config('torn')->surfix;
+		$surfix = Kohana::config('torn')->surfix->temp;
 		$surfix_len = utf8::strlen($surfix);
 		
 		foreach($_POST as $key => $tmp_name)

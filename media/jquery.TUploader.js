@@ -185,6 +185,7 @@ $.fn.TUploader = function(config)
 		$container.append('<div class="uploader-embed" />');
 	
 		$el.find('input[type=file]').after($container).hide();
+		$el.find('.uploader-delete-cache').remove();
 		
 		var $fakelink = $container.find('.uploader-fakelink');
 		var $cancellink = $container.find('.uploader-cancellink');
@@ -211,7 +212,7 @@ $.fn.TUploader = function(config)
 		{
 			$cancellink.hide();
 		}
-			
+		
 		$container.find('.uploader-embed').flash({
 			src: json.swf,
 			width: $fakelink.outerWidth(),

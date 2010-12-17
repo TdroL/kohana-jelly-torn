@@ -8,23 +8,30 @@ class Field_File extends Jelly_Field_File
 	{
 		$original = $model->get($this->name, FALSE);
 		$config = Kohana::config('torn');
+		
+		$force_delete = $model->get($this->name.$config->surfix->delete_old, FALSE);
+		
+		if($force_delete OR ($this->delete_old_file AND $original != $value))
+		{
+			if(file_exists($original))
+			{
+				try
+				{
+					unlink($original);
+				}
+				catch (Exception $e) {}
+			}
+			
+			if($original == $value)
+			{
+				$value = NULL;
+			}
+		}
 
 		if(is_string($value) and preg_match('/^[a-z0-9]{32}-[a-z0-9]{32}$/i', $value))
 		{
 			if(file_exists(Kohana::$cache_dir.DIRECTORY_SEPARATOR.$value))
 			{
-				if($this->delete_old_file AND $original != $this->default)
-				{
-					if(file_exists($original))
-					{
-						try
-						{
-							unlink($original);
-						}
-						catch (Exception $e) {}
-					}
-				}
-				
 				$cache = Cache::instance();
 				
 				$cached = $cache->get($value);
@@ -52,7 +59,7 @@ class Field_File extends Jelly_Field_File
 			}
 		}
 		
-		$tmp_field = $this->name.$config->surfix;
+		$tmp_field = $this->name.$config->surfix->temp;
 		
 		if(is_string($value) and array_key_exists($tmp_field, $_POST)
 		   and empty($value) and empty($_POST[$tmp_field]))

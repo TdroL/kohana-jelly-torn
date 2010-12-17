@@ -7,11 +7,19 @@ return array(
 	// Field class prefix
 	'field_prefix' => 'Torn_Field_',
 	
-	// html ids prefix
+	// html id prefix
 	'prefix' => 'field-',
 	
-	// hidden cached file field
-	'surfix' => '-tmp',
+	'surfix' => (object) array(
+		// hidden cached file field
+		'temp' => '-tmp',
+		
+		// delete cached file field
+		'delete_cache' => '-delete-cache',
+		
+		// delete old file field
+		'delete_old' => '-delete-old',
+	),
 	
 	// validation messages
 	'messages' => 'validate',

@@ -86,7 +86,7 @@ class Torn_Core_Uploader
 		}
 		
 		$cache = Cache::instance();
-		$surfix = Kohana::config('torn')->surfix;
+		$surfix = Kohana::config('torn')->surfix->temp;
 		
 		$cached = $this->model->get($field.$surfix);
 		$current = $this->model->get($field, FALSE);
@@ -152,11 +152,30 @@ class Torn_Core_Uploader
 	
 	public static function upload_to_cache(array $file, $field)
 	{
+		$config = Kohana::config('torn');
+		$cache = Cache::instance();
+		$surfix = $config->surfix->temp;
+		
+		if(Arr::get($_POST, $field.$config->surfix->delete_cache, FALSE))
+		{
+			$tmp = Arr::get($_POST, $field.$surfix);
+			
+			if(!empty($tmp) AND file_exists(Kohana::$cache_dir.DIRECTORY_SEPARATOR.$tmp))
+			{
+				try
+				{
+					unlink(Kohana::$cache_dir.DIRECTORY_SEPARATOR.$tmp);
+					$cache->delete($tmp);
+					$_POST[$field.$surfix] = NULL;
+				}
+				catch (Exception $e) {}
+			}
+			
+			return NULL;
+		}
+		
 		if(Upload::not_empty($file)) // Upload::valid passed in Validate above
 		{
-			$cache = Cache::instance();
-			$surfix = Kohana::config('torn')->surfix;
-			
 			$seed = Arr::get($_POST, '__SEED__', md5(Request::current()->uri().time()));
 			$tmp_name = $seed.'-'.md5_file($file['tmp_name']);
 			
