@@ -72,6 +72,12 @@ abstract class Torn_Core
 		return $field;
 	}
 	
+	public function __isset($field)
+	{
+		return isset($this->fields[$field]);
+	}
+
+	
 	public function __call($method, array $args = array())
 	{
 		return Torn_Helper::factory($this)->__call($method, $args);
