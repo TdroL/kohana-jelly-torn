@@ -44,9 +44,10 @@ abstract class Torn_Core
 		}
 	}
 
-	public function catch_errors(Validate_Exception $e)
+	public function catch_errors(Validate_Exception $e, $messages = NULL)
 	{
-		$this->errors = $e->array->errors(Kohana::config('torn')->messages);
+		$messages = ($messages !== NULL) ? $messages : Kohana::config('torn')->messages;
+		$this->errors = $e->array->errors($messages);
 	}
 
 	public function has_errors()
