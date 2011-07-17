@@ -1,3 +1,5 @@
+# This module is no longer maintained. 
+
 Torn is a form generator for [Jelly](http://github.com/jonathangeiger/kohana-jelly).
 
 # Requirements
